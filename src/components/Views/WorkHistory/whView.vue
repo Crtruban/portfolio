@@ -3,20 +3,29 @@
     <div class="header">
       Work History
     </div>
-    <div id="carousel" class="carousel" :style="{ paddingLeft: (sidebarWidth) }">
-      <div id='item_3' class="prev" @click="selectWH(prev)">
-        <img :src="getImgUrl(prev.img)">
+    <div id="carousel">
+      <div class="prev">
+        <img  @click="selectWH(prev)" :src="getImgUrl(prev.img)" alt="kitten" class="img" :class="{'fade-out': !transObject.prvTrans}">
+      </div>
+      <div class="selected">
+        <img  @click="selectWH(current)" :src="getImgUrl(current.img)" alt="kitten" class="img" :class="{'fade-out': !transObject.crnTrans}">
+        </div>
+        <div class="next">
+        <img  @click="selectWH(next)" :src="getImgUrl(next.img)" alt="kitten" class="img" :class="{'fade-out': !transObject.nxtTrans}">
+      </div>
+      </div> 
+      <!-- <div id='item_3' class="prev" @click="selectWH(prev)">
+        <img class="transObject" :src="getImgUrl(prev.img)" :class="{'fade-out': !transObject.prvTrans}">
       </div>
       <div id='item_4' class="selected" @click="selectWH(current)">
-        <img :src="getImgUrl(current.img)">
+        <img :src="getImgUrl(current.img)" :class="{'fade-out': !transObject.crnTrans}">
       </div>
 
       <div id='item_5' class="next" :value="next.name" @click="selectWH(next)">
-        <img :src="getImgUrl(next.img)">
-      </div>
-    </div>
+        <img :src="getImgUrl(next.img)" :class="{'fade-out': !transObject.nxtTrans}">
+      </div> -->
     <Transition>
-    <div v-if="transittion" class="whMessage">
+    <div v-if="transObject.msgTrans" class="whMessage">
       {{ current.message }}
     </div>
   </Transition>
@@ -52,25 +61,47 @@ export default {
     let current = this.workExperience.Nexxis;
     let prev = this.workExperience.GridIron;
     let next = this.workExperience.IBM;
-    let transittion = true;
-    return { current, prev, next, transittion }
+    let transObject = {
+      msgTrans: true,
+      prvTrans: true,
+      crnTrans: true,
+      nxtTrans: true
+    };
+    return { current, prev, next, transObject }
   },
   methods: {
     selectWH(value) {
       let { current, prev, next } = this;
       if (value != current) {
-        this.transittion = !this.transittion;
+        this.transObject.msgTrans = !this.transObject.msgTrans;
+        this.transObject.crnTrans = !this.transObject.crnTrans
         let swap = current;
-        this.current = value;
         if (prev == value) {
           console.log("prev");
-          this.prev = swap;
+          this.transObject.prvTrans = !this.transObject.prvTrans;
+          setTimeout(() => {
+            this.prev = swap;
+          this.current = value;
+            this.transObject.crnTrans = true;
+            this.transObject.prvTrans = true;
+            this.transObject.nxtTrans = true;
+            this.transObject.msgTrans = true;
+          }, 1500);
         }
         else {
           console.log("next");
-          this.next = swap;
+          this.transObject.nxtTrans = !this.transObject.nxtTrans
+          
+          setTimeout(() => {
+            this.next = swap;
+          this.current = value;
+            this.transObject.crnTrans = true;
+            this.transObject.prvTrans = true;
+            this.transObject.nxtTrans = true;
+            this.transObject.msgTrans = true;
+          }, 1000);
         }
-        setTimeout(() => this.transittion = true, 900);
+        
       }
     },
     getImgUrl(pic) {
@@ -81,6 +112,13 @@ export default {
 }
 </script>
 <style scoped>
+.img {
+  transition: opacity 1s;
+}
+
+.img.fade-out {
+  opacity: 0;
+}
 .v-enter-active,
 .v-leave-active {
   transition: opacity 1s ease;
@@ -105,7 +143,18 @@ export default {
   padding-left: 15%;
   font-size: 550%;
 }
-
+img {
+  width: 400px;
+  /* box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px; */
+  border-radius: 10px;
+}
+.img-holder .crnt img {
+  height: 750;
+  cursor: pointer;
+}
+.img-holder img:hover {
+  cursor: pointer;
+}
 #carousel {
   position: relative;
   height: 400px;
@@ -115,37 +164,14 @@ export default {
 
 #carousel div {
   position: absolute;
-  transition: transform 400ms, left 400ms, opacity 400ms, z-index 0s;
-  opacity: 1;
 }
 
 #carousel div img {
   width: 400px;
-  transition: width 400ms;
-  -webkit-user-drag: none;
   box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
   border-radius: 10px;
 }
 
-#carousel div.hideLeft {
-  left: 0%;
-  opacity: 0;
-  transform: translateY(50%) translateX(-50%);
-}
-
-#carousel div.hideLeft img {
-  width: 200px;
-}
-
-#carousel div.hideRight {
-  left: 100%;
-  opacity: 0;
-  transform: translateY(50%) translateX(-50%);
-}
-
-#carousel div.hideRight img {
-  width: 200px;
-}
 
 #carousel div.prev {
   z-index: 5;
@@ -161,16 +187,6 @@ export default {
   width: 300px;
 }
 
-#carousel div.prevLeftSecond {
-  left: 15%;
-  transform: translateY(50%) translateX(-50%);
-  opacity: 0.7;
-}
-
-#carousel div.prevLeftSecond img {
-  z-index: 1;
-  width: 200px;
-}
 
 #carousel div.selected {
   z-index: 10;
@@ -178,7 +194,7 @@ export default {
   transform: translateY(0px) translateX(-50%);
 }
 
-#carousel div.next {
+ #carousel div.next {
   z-index: 5;
   left: 70%;
   transform: translateY(50px) translateX(-50%);
@@ -186,118 +202,7 @@ export default {
 
 #carousel div.next img {
   width: 300px;
-}
+} 
 
-#carousel div.nextRightSecond {
-  z-index: 4;
-  left: 85%;
-  transform: translateY(50%) translateX(-50%);
-  opacity: 0.7;
-}
 
-#carousel div.nextRightSecond img {
-  width: 200px;
-}
-
-/*previous or next buttons css*/
-
-.buttons {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 100px;
-}
-
-.button-82-pushable {
-  position: relative;
-  border: none;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-  outline-offset: 4px;
-  transition: filter 250ms;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-}
-
-.button-82-shadow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-  background: hsl(0deg 0% 0% / 0.25);
-  will-change: transform;
-  transform: translateY(2px);
-  transition:
-    transform 600ms cubic-bezier(.3, .7, .4, 1);
-}
-
-.button-82-edge {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-  background: linear-gradient(to left,
-      hsl(340deg 100% 16%) 0%,
-      hsl(340deg 100% 32%) 8%,
-      hsl(340deg 100% 32%) 92%,
-      hsl(340deg 100% 16%) 100%);
-}
-
-.button-82-front {
-  display: block;
-  position: relative;
-  padding: 12px 27px;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  color: white;
-  background: hsl(345deg 100% 47%);
-  will-change: transform;
-  transform: translateY(-4px);
-  transition:
-    transform 600ms cubic-bezier(.3, .7, .4, 1);
-}
-
-@media (min-width: 768px) {
-  .button-82-front {
-    font-size: 1.25rem;
-    padding: 12px 42px;
-  }
-}
-
-.button-82-pushable:hover {
-  filter: brightness(110%);
-  -webkit-filter: brightness(110%);
-}
-
-.button-82-pushable:hover .button-82-front {
-  transform: translateY(-6px);
-  transition:
-    transform 250ms cubic-bezier(.3, .7, .4, 1.5);
-}
-
-.button-82-pushable:active .button-82-front {
-  transform: translateY(-2px);
-  transition: transform 34ms;
-}
-
-.button-82-pushable:hover .button-82-shadow {
-  transform: translateY(4px);
-  transition:
-    transform 250ms cubic-bezier(.3, .7, .4, 1.5);
-}
-
-.button-82-pushable:active .button-82-shadow {
-  transform: translateY(1px);
-  transition: transform 34ms;
-}
-
-.button-82-pushable:focus:not(:focus-visible) {
-  outline: none;
-}
 </style>
