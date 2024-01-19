@@ -15,9 +15,11 @@
         <img :src="getImgUrl(next.img)">
       </div>
     </div>
-    <div class="whMessage">
+    <Transition>
+    <div v-if="transittion" class="whMessage">
       {{ current.message }}
     </div>
+  </Transition>
   </div>
 </template>
 <script>
@@ -50,13 +52,14 @@ export default {
     let current = this.workExperience.Nexxis;
     let prev = this.workExperience.GridIron;
     let next = this.workExperience.IBM;
-    return { current, prev, next }
+    let transittion = true;
+    return { current, prev, next, transittion }
   },
   methods: {
     selectWH(value) {
       let { current, prev, next } = this;
       if (value != current) {
-        console.log("Swapping");
+        this.transittion = !this.transittion;
         let swap = current;
         this.current = value;
         if (prev == value) {
@@ -67,6 +70,7 @@ export default {
           console.log("next");
           this.next = swap;
         }
+        setTimeout(() => this.transittion = true, 900);
       }
     },
     getImgUrl(pic) {
@@ -77,6 +81,15 @@ export default {
 }
 </script>
 <style scoped>
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 1s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
 .whView{
   animation: fadeIn 2s;
 }
@@ -87,7 +100,6 @@ export default {
 .whMessage {
   padding-top: 3%;
   padding-left: 19%;
-  animation: fadeIn 2s;
 }
 .header {
   padding-left: 15%;
